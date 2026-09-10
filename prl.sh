@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # List open PRs in org ChatPush where the current user is author or assignee.
-# Oldest first. Shows draft/ready, CI rollup, approval count, URL, first 3 body lines.
+# Oldest first. Shows draft/ready, CI rollup, approval count vs REQUIRED_APPROVALS (default 2), URL, first 3 body lines.
 set -euo pipefail
 
 ORG="${ORG:-ChatPush}"
+# Approvals needed to consider a PR ready to proceed.
+REQUIRED_APPROVALS="${REQUIRED_APPROVALS:-2}"
 
 need() {
   command -v "$1" >/dev/null 2>&1 || {
@@ -204,11 +206,17 @@ jq -c '.[]' <<<"$formatted" | while IFS= read -r row; do
     ci_fmt="${ci_fmt} $(c dim "(${ci_bad})")"
   fi
 
+  if (( approvals >= REQUIRED_APPROVALS )); then
+    approvals_fmt="$(c green "✅ approvals:${approvals}/${REQUIRED_APPROVALS} [${decision}]")"
+  else
+    approvals_fmt="$(c yellow "⏳ approvals:${approvals}/${REQUIRED_APPROVALS} [${decision}]")"
+  fi
+
   printf '%s  %s  %s  %s  %s\n' \
     "$(c dim "$created")" \
     "$draft_fmt" \
     "$ci_fmt" \
-    "approvals:${approvals} [${decision}]" \
+    "$approvals_fmt" \
     "$(c cyan "${repo}#${number}")"
   printf '  %s\n' "$(c bold "$title")"
   printf '  %s\n' "$(c cyan "$url")"
