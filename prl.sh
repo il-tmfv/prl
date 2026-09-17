@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # List open PRs in org ChatPush where the current user is author or assignee.
-# Oldest first. Shows draft/ready, CI rollup, approval count vs REQUIRED_APPROVALS (default 2), URL, first 3 body lines.
+# Oldest first. Shows draft/ready, CI rollup, approval count vs REQUIRED_APPROVALS (default 1), URL, first 3 body lines.
 set -euo pipefail
 
 ORG="${ORG:-ChatPush}"
 # Approvals needed to consider a PR ready to proceed.
-REQUIRED_APPROVALS="${REQUIRED_APPROVALS:-2}"
+REQUIRED_APPROVALS="${REQUIRED_APPROVALS:-1}"
 
 need() {
   command -v "$1" >/dev/null 2>&1 || {
