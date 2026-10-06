@@ -8,7 +8,7 @@ ORG="${ORG:-ChatPush}"
 # Approvals needed to consider a PR ready to proceed.
 REQUIRED_APPROVALS="${REQUIRED_APPROVALS:-1}"
 # Author whose comments option 2 marks as outdated.
-HIDE_USER="${HIDE_USER:-valera-architect}"
+HIDE_USER="${HIDE_USER:-valera-architect[bot]}"
 
 need() {
   command -v "$1" >/dev/null 2>&1 || {
@@ -237,7 +237,7 @@ list_prs() {
   done
 }
 
-# Mark all comments (issue + inline review comments) of HIDE_USER on a PR as outdated.
+# Mark all comments (issue, inline review comments, review bodies) of HIDE_USER on a PR as outdated.
 hide_comments() {
   local url="$1"
   local owner repo number
@@ -255,6 +255,7 @@ hide_comments() {
     {
       gh api --paginate "repos/${owner}/${repo}/issues/${number}/comments"
       gh api --paginate "repos/${owner}/${repo}/pulls/${number}/comments"
+      gh api --paginate "repos/${owner}/${repo}/pulls/${number}/reviews"
     } | jq -r --arg user "$HIDE_USER" '.[] | select(.user.login == $user) | .node_id'
   )"
 
